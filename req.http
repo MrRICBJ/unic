@@ -1,0 +1,23 @@
+POST http://localhost:8080/auth/sign-in
+Content-Type: application/json
+
+{
+  "name": "Ivan",
+  "password": "1234"
+}
+
+###
+POST http://localhost:8080/auth/sign-up
+Content-Type: application/json
+
+{
+  "name": "Ivan",
+  "password": "123",
+  "role": "student"
+}
+
+###
+GET http://localhost:8080/
+Accept: application/json
+
+###
