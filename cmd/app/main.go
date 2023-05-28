@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"log"
 	"university/internal/config"
 	"university/internal/database"
 	"university/internal/handlers/v1"
@@ -22,12 +23,12 @@ func main() {
 		logrus.Fatalf("db opening error: %s\n", err.Error())
 	}
 
-	e := echo.New()
+	r := gin.Default()
 	repo := repository.New(db)
 	serv := service.New(repo)
 
-	v1.New(serv).Register(e)
+	v1.New(serv).Register(r)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":8080"))
+	log.Fatal(r.Run(":8080"))
 }
