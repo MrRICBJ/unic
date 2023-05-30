@@ -6,5 +6,5 @@ type User struct {
 	Password   string   `json:"password" binding:"required"`
 	Role       string   `json:"role" binding:"required"`
 	ResultTest []string `json:"result_test"`
-	Students   []int    `json:"students"`
+	Students   []string `json:"students"`
 }

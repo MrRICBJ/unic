@@ -1,3 +1,39 @@
+POST http://localhost:8080/api/result-test
+Content-Type: application/json
+
+{
+  "answer": [1, 2, 3, 4, 5]
+}
+
+
+###
+POST http://localhost:8080/auth/sign-in
+Content-Type: application/json
+
+{
+  "name": "farid2",
+  "password": "123"
+}
+###
+POST http://localhost:8080/auth/sign-up
+Content-Type: application/json
+
+{
+"name": "farid2",
+"password": "123",
+"role": "teacher"
+}
+
+###
+POST http://localhost:8080/auth/sign-in
+Content-Type: application/json
+
+{
+  "name": "farid",
+  "password": "123"
+}
+
+###
 GET http://localhost:8080/api/users
 Accept: application/json
 
@@ -16,11 +52,22 @@ POST http://localhost:8080/auth/sign-up
 Content-Type: application/json
 
 {
+"name": "farid",
+"password": "123",
+"role": "student"
+}
+
+###
+POST http://localhost:8080/auth/sign-up
+Content-Type: application/json
+
+{
   "name": "Vova",
   "password": "123",
   "role": "admin"
 }
 
+###
 POST http://localhost:8080/auth/sign-in
 Content-Type: application/json
 

@@ -32,6 +32,22 @@ func New(repo *repository.Repo) *Service {
 	}
 }
 
+func (s *Service) GetTestAnswers() ([]string, error) {
+	return s.repo.GetTestAnswers()
+}
+
+func (s *Service) GetTestQuestions() ([]string, error) {
+	return s.repo.GetTestQuestions()
+}
+
+func (s *Service) GetMyStudent(id int64) ([]entity.User, error) {
+	return s.repo.GetMyStudent(id)
+}
+
+func (s *Service) AddStudent(idStudent int, id int64) error {
+	return s.repo.AddStudent(idStudent, id)
+}
+
 func (s *Service) CheckTest(id int64, answers []int) (int, error) {
 	correctAnswers := []int{124, 134, 145, 1, 1, 2, 3, 1, 2, 1, 1, 14, 3}
 
@@ -59,9 +75,9 @@ func (s *Service) GetAllUsers() ([]entity.User, error) {
 	return s.repo.GetUsers()
 }
 
-//func (s *Service) GetTheory() (string, error) {
-//	return s.repo.GetTheory()
-//}
+func (s *Service) GetTheory() (string, error) {
+	return s.repo.GetTheory()
+}
 
 func (s *Service) CreateUser(user *entity.User) (*entity.User, error) {
 	user.Password = generatePasswordHash(user.Password)

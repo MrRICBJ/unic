@@ -3,16 +3,17 @@ Create table users (
                        name VARCHAR(255) NOT NULL,
                        password VARCHAR(255) NOT NULL,
                        role VARCHAR(255) NOT NULL,
-                       result_test VARCHAR(255)[],
-                       students INT[],
+                       result_test TEXT[] DEFAULT NULL,
+                       students TEXT[]
 );
 
 CREATE table data (
     theory Text,
-    test Text[]
+    test_q Text[],
+    test_a Text[]
 );
 
-INSERT INTO data (theory, test)
+INSERT INTO data (theory, test_q, test_a)
 VALUES ('SQL (Structured Query Language) - это язык программирования, который используется для
 управления базами данных. Первый прототип языка SQL представила в 1979 году компания-
 разработчик Oracle. Сначала это был простейший инструмент для извлечения нужных данных,
@@ -273,4 +274,17 @@ employees.department_id=departments.id; 3. FROM employees; 4. LEFT JOIN departme
         'Напишите запрос, возвращающий значения из колонки «FirstName» таблицы «Users».',
         'Что возвращает запрос SELECT * FROM Students?',
         'Обязательными фразами в запросе на выборку данных являются:',
-        'Что будет если не использовать элемент WHERE в команде DELETE?']);
+        'Что будет если не использовать элемент WHERE в команде DELETE?'],
+        ARRAY['собирать и хранить данные в виде таблиц;изменять их содержимое и структуру;создавать приложение;защищать и распределять доступ',
+        'INT;LONG;CHAR;BLOB',
+        'TINYINT;REAL;FLOAT;LONG;TIMESTAMP',
+        'Используются для хранения файлов, фото, документов, аудио и видеоконтента. Все это хранится в бинарном виде;Дробные числа с плавающей запятой (точкой);Целочисленные значения;Хранения большого объема текста',
+        'INSERT INTO;INSERT NEW;ADD RECORD;ADD NEW',
+        'NEW TABLE;CREATE TABLE;MAKE TABLE',
+        '1, 4, 2, 3;1, 2, 4, 3;1, 3, 4, 2',
+        'structured query language;strict question line;strong question language',
+        'SELECT ALL Persons;SELECT * FROM Persons;SELECT .[Persons]',
+        'SELECT FirstName FROM Users;SELECT FirstName.Users;SELECT * FROM Users.FirstName',
+        'Все записи из таблицы «Students»;Рассчитанное суммарное количество записей в таблице «Students»;Внутреннюю структуру таблицы «Students»',
+        'FROM;JOIN;ORDER;SELECT;WHERE',
+        'Ошибка;Программа выполнится, но ничего не произойдет;Удаляются все строки из таблицы или представления']);

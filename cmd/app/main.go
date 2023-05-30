@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"log"
 	"university/internal/config"
 	"university/internal/database"
 	"university/internal/handlers/v1"
@@ -30,5 +29,5 @@ func main() {
 	v1.New(serv).Register(r)
 
 	// Start server
-	log.Fatal(r.Run(":8080"))
+	r.Run(":8080")
 }

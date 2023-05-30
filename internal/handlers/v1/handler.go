@@ -1,10 +1,13 @@
 package v1
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"strconv"
 	"university/internal/entity"
+	"university/internal/handlers"
 	"university/internal/service"
 )
 
@@ -30,41 +33,94 @@ func (h *Handler) Register(e *gin.Engine) {
 
 	api := e.Group("api", h.userIdentity)
 	{
-		api.GET("/users", h.getUsers) // admin
+		api.GET("/users", h.getUsers) // admin - ok
 
-		e.GET("/result-test", h.getResultTest) // student
-		e.POST("/result-test", h.checkTest)    // student
-		//
-		//e.GET("/theory", h.theory)
-		//e.GET("/test", h.test)
+		api.GET("/result-test", h.getResultTest) // student -ok
+		api.POST("/result-test", h.checkTest)    // student - ok
+
+		api.POST("/add-student", h.addStudent)   //teacher - ok
+		api.GET("/my-students", h.getMyStudents) //teacher -
+
+		e.GET("/theory", h.theory)
+		e.GET("/testQuestions", h.testQuestions)
+		e.GET("/testAnswers", h.testAnswers)
 	}
 }
 
-func (h *Handler) checkTest() {
-	id, _ := e.Get(userCtx)
+func (h *Handler) theory(e *gin.Context) {
+	theory, _ := h.service.GetTheory()
+	//if err != nil {
+	//	e.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	//	return
+	//}
 
-	res, err := h.service.CheckTest(id.(int64))
+	e.JSON(http.StatusOK, theory)
 }
 
-func (h *Handler) getResultTest(e *gin.Context) {
+func (h *Handler) testQuestions(e *gin.Context) {
+	res, _ := h.service.GetTestQuestions()
+	e.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) testAnswers(e *gin.Context) {
+	res, _ := h.service.GetTestAnswers()
+	e.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) getMyStudents(e *gin.Context) {
 	id, _ := e.Get(userCtx)
-	res, err := h.service.GetResultTests(id.(int64))
+
+	res, err := h.service.GetMyStudent(id.(int64))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		e.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	e.JSON(http.StatusOK, res)
 }
 
-//func (h *Handler) test(c echo.Context) error {
-//
-//}
-//
-//func (h *Handler) theory(c echo.Context) error {
-//	result, _ := h.service.GetTheory()
-//	return c.JSON(http.StatusOK, result)
-//}
+func (h *Handler) addStudent(e *gin.Context) {
+	id, _ := e.Get(userCtx)
+	idStudent, err := strconv.Atoi(e.Query("idStudent"))
+	if err != nil {
+		e.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := h.service.AddStudent(idStudent, id.(int64)); err != nil {
+		e.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	e.JSON(http.StatusOK, idStudent)
+}
+
+func (h *Handler) checkTest(e *gin.Context) {
+	id, _ := e.Get(userCtx)
+	var req handlers.RequestBodyTest
+	err := e.BindJSON(&req)
+	if err != nil {
+		e.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	res, err := h.service.CheckTest(id.(int64), req.Answer)
+	if err != nil {
+		e.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	e.JSON(http.StatusOK, fmt.Sprintf("%d/13", res))
+}
+
+func (h *Handler) getResultTest(e *gin.Context) {
+	id, _ := e.Get(userCtx)
+	res, err := h.service.GetResultTests(id.(int64))
+	if err != nil {
+		e.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	e.JSON(http.StatusOK, res)
+}
 
 func (h *Handler) getUsers(e *gin.Context) {
 	role, _ := e.Get(userRole)

@@ -4,6 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"strconv"
+	"strings"
 	"university/internal/entity"
 )
 
@@ -13,6 +14,28 @@ type Repo struct {
 
 func New(db *sqlx.DB) *Repo {
 	return &Repo{db: db}
+}
+
+func (r *Repo) GetTestAnswers() ([]string, error) {
+	q := `Select test_a From data`
+
+	testA := make([]string, 0)
+	err := r.db.QueryRow(q).Scan(&testA)
+	if err != nil {
+		return nil, err
+	}
+	return testA, nil
+}
+
+func (r *Repo) GetTestQuestions() ([]string, error) {
+	q := `Select test_q From data`
+
+	testQ := make([]string, 0)
+	err := r.db.QueryRow(q).Scan(&testQ)
+	if err != nil {
+		return nil, err
+	}
+	return testQ, nil
 }
 
 func (r *Repo) GetTheory() (string, error) {
@@ -102,14 +125,24 @@ func (r *Repo) CreateResultTest(count int, id int64) error {
 	q := `select result_test from users where id = $1`
 
 	var resTest []string
-	err = tx.QueryRow(q, id).Scan(&resTest)
+	var est string
+	var tmp *[]string
+	var t bool
+	err = tx.QueryRow(q, id).Scan(&tmp)
 	if err != nil {
-		return err
+		_ = tx.QueryRow(q, id).Scan(&est)
+		est = strings.ReplaceAll(est, "{", "")
+		est = strings.ReplaceAll(est, "}", "")
+		t = true
 	}
-
-	resTest = append(resTest, strconv.Itoa(count)+"/13")
+	if t {
+		resTest = append(resTest, est, strconv.Itoa(count)+"/13")
+	} else {
+		resTest = append(resTest, strconv.Itoa(count)+"/13")
+	}
 	q = `UPDATE users SET result_test = $1 WHERE id = $2`
-	_, err = tx.Exec(q, resTest, id)
+	_, err = tx.Exec(q, pq.Array(resTest), id)
+	//_, err = tx.Exec(q, fmt.Sprintf("{%s}", strings.Join(resTest, ",")), id)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -120,4 +153,70 @@ func (r *Repo) CreateResultTest(count int, id int64) error {
 		return err
 	}
 	return nil
+}
+
+func (r *Repo) AddStudent(idStudent int, id int64) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+	q := `select students from users where id = $1`
+
+	var student []string
+	var tmp *[]string
+	var est string
+	var t bool
+
+	err = tx.QueryRow(q, id).Scan(&tmp)
+	if err != nil {
+		_ = tx.QueryRow(q, id).Scan(&est)
+		est = strings.ReplaceAll(est, "{", "")
+		est = strings.ReplaceAll(est, "}", "")
+		t = true
+	}
+	if t {
+		student = append(student, est, strconv.Itoa(idStudent))
+	} else {
+		student = append(student, strconv.Itoa(idStudent))
+	}
+
+	q = `UPDATE users SET students = $1 WHERE id = $2`
+	_, err = tx.Exec(q, pq.Array(student), id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repo) GetMyStudent(id int64) ([]entity.User, error) {
+	q := `Select students From users WHERE id = $1`
+
+	res := make([]entity.User, 0)
+	listStud := make([]entity.User, 0)
+	tmp := ""
+
+	err := r.db.QueryRow(q, id).Scan(&tmp)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range listStud {
+		q = `Select * From users WHERE id = $1`
+
+		var user entity.User
+
+		if err := r.db.QueryRow(q, v).
+			Scan(&user.Id, &user.Name, &user.Password, &user.Role, pq.Array(&user.ResultTest), pq.Array(&user.Students)); err != nil {
+			return nil, err
+		}
+
+		res = append(res, user)
+	}
+	return res, nil
 }
