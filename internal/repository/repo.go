@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"strconv"
@@ -198,13 +199,14 @@ func (r *Repo) GetMyStudent(id int64) ([]entity.User, error) {
 	q := `Select students From users WHERE id = $1`
 
 	res := make([]entity.User, 0)
-	listStud := make([]entity.User, 0)
-	tmp := ""
+	str := ""
 
-	err := r.db.QueryRow(q, id).Scan(&tmp)
+	err := r.db.QueryRow(q, id).Scan(&str)
 	if err != nil {
 		return nil, err
 	}
+
+	listStud := conv(str)
 
 	for _, v := range listStud {
 		q = `Select * From users WHERE id = $1`
@@ -219,4 +221,20 @@ func (r *Repo) GetMyStudent(id int64) ([]entity.User, error) {
 		res = append(res, user)
 	}
 	return res, nil
+}
+
+func conv(str string) []int {
+	str = strings.Trim(str, "{}")
+	strValues := strings.Split(str, ",") // Разделяем элементы по запятой
+
+	var intSlice []int
+	for _, val := range strValues {
+		num, err := strconv.Atoi(strings.TrimSpace(val))
+		if err != nil {
+			fmt.Printf("Ошибка преобразования числа: %v\n", err)
+			continue
+		}
+		intSlice = append(intSlice, num)
+	}
+	return intSlice
 }
