@@ -1,7 +1,11 @@
 package database
 
 import (
+	"errors"
 	"fmt"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"university/internal/config"
@@ -21,24 +25,24 @@ func NewPostgresDB(cfg config.PostgresConfig) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	//driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//// Создаем экземпляр Migrate
-	//m, err := migrate.NewWithDatabaseInstance(
-	//	"file://database/migrations/.",
-	//	"postgres", driver)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//// Выполняем миграции вверх
-	//err = m.Up()
-	//if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-	//	return nil, err
-	//}
+	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	//Создаем экземпляр Migrate
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://database/migrations/.",
+		"postgres", driver)
+	if err != nil {
+		return nil, err
+	}
+
+	// Выполняем миграции вверх
+	err = m.Up()
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return nil, err
+	}
 
 	return db, nil
 }

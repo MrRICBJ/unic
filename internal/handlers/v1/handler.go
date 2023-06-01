@@ -40,20 +40,15 @@ func (h *Handler) Register(e *gin.Engine) {
 
 		api.POST("/add-student", h.addStudent)   //teacher - ok
 		api.GET("/my-students", h.getMyStudents) //teacher -
-
-		e.GET("/theory", h.theory)
-		e.GET("/testQuestions", h.testQuestions)
-		e.GET("/testAnswers", h.testAnswers)
 	}
+
+	e.GET("/theory", h.theory)
+	e.GET("/testQuestions", h.testQuestions)
+	e.GET("/testAnswers", h.testAnswers)
 }
 
 func (h *Handler) theory(e *gin.Context) {
 	theory, _ := h.service.GetTheory()
-	//if err != nil {
-	//	e.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
-	//	return
-	//}
-
 	e.JSON(http.StatusOK, theory)
 }
 

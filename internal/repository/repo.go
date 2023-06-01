@@ -21,10 +21,22 @@ func (r *Repo) GetTestAnswers() ([]string, error) {
 	q := `Select test_a From data`
 
 	testA := make([]string, 0)
-	err := r.db.QueryRow(q).Scan(&testA)
+	rows, err := r.db.Query(q)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
+	for rows.Next() {
+		tmp := ""
+		err := rows.Scan(&tmp)
+		if err != nil {
+			return nil, err
+		}
+
+		testA = append(testA, tmp)
+	}
+
 	return testA, nil
 }
 
@@ -32,10 +44,22 @@ func (r *Repo) GetTestQuestions() ([]string, error) {
 	q := `Select test_q From data`
 
 	testQ := make([]string, 0)
-	err := r.db.QueryRow(q).Scan(&testQ)
+	rows, err := r.db.Query(q)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
+	for rows.Next() {
+		tmp := ""
+		err := rows.Scan(&tmp)
+		if err != nil {
+			return nil, err
+		}
+
+		testQ = append(testQ, tmp)
+	}
+
 	return testQ, nil
 }
 
@@ -209,12 +233,12 @@ func (r *Repo) GetMyStudent(id int64) ([]entity.User, error) {
 	listStud := conv(str)
 
 	for _, v := range listStud {
-		q = `Select * From users WHERE id = $1`
+		q = `Select id, name, role, result_test From users WHERE id = $1`
 
 		var user entity.User
 
 		if err := r.db.QueryRow(q, v).
-			Scan(&user.Id, &user.Name, &user.Password, &user.Role, pq.Array(&user.ResultTest), pq.Array(&user.Students)); err != nil {
+			Scan(&user.Id, &user.Name, &user.Role, pq.Array(&user.ResultTest)); err != nil {
 			return nil, err
 		}
 
